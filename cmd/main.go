@@ -1,22 +1,28 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"strings"
 	"transactional-kvs/kvs"
 )
 
 func main() {
-	inputs := os.Args[1:]
-
-	// validate args
-	err := kvs.ValidateCmdInputs(inputs)
-	if err != nil {
-		fmt.Println(err, inputs)
-	}
-
+	cmdReader := bufio.NewReader(os.Stdin)
 	kvsInst := kvs.NewSimpleKvs()
-	kvsInst.Set("asd", "dsa")
-	fmt.Println(kvsInst.Get("asd"))
 
+	for {
+		fmt.Print("> ")
+		inputText, _ := cmdReader.ReadString('\n')
+		inputs := strings.Fields(inputText)
+
+		result, err := kvsInst.CommandExecutor(inputs)
+		if err != nil {
+			fmt.Println(err)
+		}
+		if result != "" {
+			fmt.Println(result)
+		}
+	}
 }
