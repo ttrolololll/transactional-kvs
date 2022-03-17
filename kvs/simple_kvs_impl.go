@@ -15,12 +15,14 @@ type simpleKvsImpl struct {
 
 // NewSimpleKvs creates a new instance of simple KVS
 func NewSimpleKvs() IKvs {
-	return &simpleKvsImpl{
+	inst := &simpleKvsImpl{
 		kvMap:           map[string]string{},
 		vCountMap:       map[string]uint64{},
 		activeKvsInst:   nil,
 		sessionKvsStack: []*simpleKvsImpl{},
 	}
+	inst.activeKvsInst = inst
+	return inst
 }
 
 // CommandExecutor takes in cmd line inputs and executes the correct command
@@ -109,6 +111,8 @@ func (kvs *simpleKvsImpl) Commit() error {
 	if stackLen == 0 {
 		return errors.New("no transaction")
 	}
+
+	kvs.determineInstance()
 
 	currentKvMap := map[string]string{}
 	for k, v := range kvs.activeKvsInst.kvMap {
